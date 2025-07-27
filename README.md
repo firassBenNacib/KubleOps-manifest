@@ -29,14 +29,11 @@ This repository is part of the [KubleOps](https://github.com/firassBenNacib/Kubl
 
 ```plaintext
 kube-proj-manifest/
-├── .gitignore
 ├── argocd-sync.yaml         
 └── manifest/
     ├── Chart.yaml           
     ├── values.yaml           
-    ├── templates/           
-    ├── charts/              
-    └── .helmignore
+    ├── templates/                        
 ````
 
 ## Installation
