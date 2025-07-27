@@ -2,7 +2,7 @@ backend:
   namespace: backend
   name: backend
   serviceAccountName: backend-service-account
-  irsaRoleArn: arn:aws:iam::<your-account-id>:role/eks-project-ecr-access-role
+  irsaRoleArn: arn:aws:iam::<your-account-id>:role/KubleOps-ecr-access-role
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/backend
     tag: "72"
@@ -40,7 +40,7 @@ frontend:
   namespace: frontend
   name: frontend
   serviceAccountName: frontend-service-account
-  irsaRoleArn: arn:aws:iam::<your-account-id>:role/eks-project-ecr-access-role
+  irsaRoleArn: arn:aws:iam::<your-account-id>:role/KubleOps-ecr-access-role
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/frontend
     tag: "73"
