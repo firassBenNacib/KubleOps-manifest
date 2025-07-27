@@ -33,7 +33,7 @@ kube-proj-manifest/
 └── manifest/
     ├── Chart.yaml           
     ├── values.yaml           
-    ├── templates/                        
+    └── templates/                        
 ````
 
 ## Installation
