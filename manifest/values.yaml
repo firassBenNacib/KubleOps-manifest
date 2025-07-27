@@ -43,7 +43,7 @@ frontend:
   irsaRoleArn: arn:aws:iam::<your-account-id>:role/KubleOps-ecr-access-role
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/frontend
-    tag: "82"
+    tag: "84"
     pullPolicy: Always
   containerPort: 80
   service:
