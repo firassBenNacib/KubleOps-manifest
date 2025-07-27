@@ -25,12 +25,12 @@ backend:
     liveness:
       path: /springMVC/actuator/health/liveness
       port: 8088
-      initialDelaySeconds: 45
+      initialDelaySeconds: 30
       periodSeconds: 15
     readiness:
       path: /springMVC/actuator/health/readiness
       port: 8088
-      initialDelaySeconds: 45
+      initialDelaySeconds: 10
       periodSeconds: 10
   configMapName: backend-config
   secretName: db-credentials
