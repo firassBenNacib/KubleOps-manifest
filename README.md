@@ -4,7 +4,7 @@ GitOps-driven Kubernetes deployment using Helm and ArgoCD.
 
 ## Overview
 
-This repository contains the Helm charts and ArgoCD configurations for deploying a production-grade, multi-tier application to Amazon EKS.
+This repository contains the Helm charts and ArgoCD configurations for deploying a multi-tier application to Amazon EKS.
 
 This repository is part of the [KubleOps](https://github.com/firassBenNacib/KubleOps.git) project. While the parent repo handles the infrastructure setup (EKS, VPC, IAM, Bastion, etc.), this repo is dedicated to deploying applications to the Kubernetes cluster using **Helm** and **ArgoCD** with a GitOps approach.
 
@@ -22,7 +22,7 @@ This repository is part of the [KubleOps](https://github.com/firassBenNacib/Kubl
 
 - Helm-based chart structure for Kubernetes manifests.
 - ArgoCD sync automation via GitOps.
-- Support for production-ready multi-tier application deployment.
+- Support for multi-tier application deployment.
 - Works with AWS ECR using IAM Roles for Service Accounts (`irsaRoleArn`).
 
 ## Project Structure
