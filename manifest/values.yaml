@@ -36,6 +36,7 @@ backend:
   secretName: db-credentials
   configMapData:
     SPRING_DATASOURCE_URL: jdbc:mysql://mysql.database.svc.cluster.local:3306/VaccinationApp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
 frontend:
   namespace: frontend
   name: frontend
@@ -69,6 +70,7 @@ frontend:
       port: 80
       initialDelaySeconds: 5
       periodSeconds: 10
+
 mysql:
   namespace: database
   name: mysql
@@ -92,3 +94,14 @@ mysql:
       cpu: "500m"
   secretName: mysql-secret
   configMapName: mysql-config
+
+ingress:
+  enabled: true
+  groupName: kubleops-public
+  certificateArn: ""
+  hosts:
+    backend: api.devops.firasbennacib.com
+    frontend: app.devops.firasbennacib.com
+  externalDNS: true
+  sslRedirect: true
+  sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
