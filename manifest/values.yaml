@@ -5,7 +5,7 @@ backend:
   irsaRoleArn: arn:aws:iam::<your-account-id>:role/KubleOps-ecr-access-role
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/backend
-    tag: "104"
+    tag: "125"
     pullPolicy: Always
   replicas: 2
   containerPort: 8088
@@ -36,7 +36,6 @@ backend:
   secretName: db-credentials
   configMapData:
     SPRING_DATASOURCE_URL: jdbc:mysql://mysql.database.svc.cluster.local:3306/VaccinationApp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-
 frontend:
   namespace: frontend
   name: frontend
@@ -70,7 +69,6 @@ frontend:
       port: 80
       initialDelaySeconds: 5
       periodSeconds: 10
-
 mysql:
   namespace: database
   name: mysql
@@ -94,7 +92,6 @@ mysql:
       cpu: "500m"
   secretName: mysql-secret
   configMapName: mysql-config
-
 ingress:
   enabled: true
   groupName: kubleops-public
