@@ -2,10 +2,10 @@ backend:
   namespace: backend
   name: backend
   serviceAccountName: backend-service-account
-  irsaRoleArn: arn:aws:iam::<your-account-id>:role/eks-project-ecr-access-role
+  irsaRoleArn: arn:aws:iam::<your-account-id>:role/KubleOps-ecr-access-role
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/backend
-    tag: "72"
+    tag: "104"
     pullPolicy: Always
   replicas: 2
   containerPort: 8088
@@ -30,7 +30,7 @@ backend:
     readiness:
       path: /springMVC/actuator/health/readiness
       port: 8088
-      initialDelaySeconds: 45
+      initialDelaySeconds: 20
       periodSeconds: 10
   configMapName: backend-config
   secretName: db-credentials
@@ -41,10 +41,10 @@ frontend:
   namespace: frontend
   name: frontend
   serviceAccountName: frontend-service-account
-  irsaRoleArn: arn:aws:iam::<your-account-id>:role/eks-project-ecr-access-role
+  irsaRoleArn: arn:aws:iam::<your-account-id>:role/KubleOps-ecr-access-role
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/frontend
-    tag: "73"
+    tag: "105"
     pullPolicy: Always
   containerPort: 80
   service:

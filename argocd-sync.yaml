@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: KubleOps
+  name: kubleops
   namespace: argocd
 spec:
   project: default
