@@ -3,22 +3,60 @@ kind: Deployment
 metadata:
   name: {{ .Values.mysql.name }}
   namespace: {{ .Values.mysql.namespace }}
+  labels:
+    app: mysql
+    app.kubernetes.io/name: {{ .Values.mysql.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.workloads }}"{{- end }}
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: {{ .Values.mysql.name }}
+      app: mysql
   template:
     metadata:
       labels:
-        app: {{ .Values.mysql.name }}
+        app: mysql
+        app.kubernetes.io/name: {{ .Values.mysql.name }}
+        app.kubernetes.io/part-of: {{ .Chart.Name }}
     spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: fix-permissions
+          image: busybox:latest
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+          command: ["sh","-c","chown -R 999:999 /var/lib/mysql && chmod -R 770 /var/lib/mysql"]
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
       containers:
         - name: {{ .Values.mysql.name }}
           image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
           imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.mysql.containerPort }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -44,12 +82,25 @@ spec:
             - name: mysql-storage
               mountPath: /var/lib/mysql
           resources:
-            requests:
-              memory: {{ .Values.mysql.resources.requests.memory }}
-              cpu: {{ .Values.mysql.resources.requests.cpu }}
-            limits:
-              memory: {{ .Values.mysql.resources.limits.memory }}
-              cpu: {{ .Values.mysql.resources.limits.cpu }}
+{{ toYaml .Values.mysql.resources | indent 12 }}
+          readinessProbe:
+            exec:
+              command: ["sh","-c","mysqladmin ping -h 127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          livenessProbe:
+            exec:
+              command: ["sh","-c","mysqladmin ping -h 127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD"]
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sh","-c","mysqladmin shutdown -uroot -p$MYSQL_ROOT_PASSWORD || true"]
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:

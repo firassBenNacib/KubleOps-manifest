@@ -4,31 +4,61 @@ metadata:
   name: {{ .Values.frontend.name }}
   namespace: {{ .Values.frontend.namespace }}
   labels:
-    app: {{ .Values.frontend.name }}
+    app: frontend
+    app.kubernetes.io/name: {{ .Values.frontend.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.workloads }}"{{- end }}
 spec:
   replicas: {{ .Values.frontend.replicas | default 1 }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: {{ .Values.frontend.name }}
+      app: frontend
   template:
     metadata:
       labels:
-        app: {{ .Values.frontend.name }}
+        app: frontend
+        app.kubernetes.io/name: {{ .Values.frontend.name }}
+        app.kubernetes.io/part-of: {{ .Chart.Name }}
     spec:
       serviceAccountName: {{ .Values.frontend.serviceAccountName }}
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+{{- if .Values.frontend.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.frontend.imagePullSecrets | indent 8 }}
+{{- end }}
       containers:
         - name: {{ .Values.frontend.name }}
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_BIND_SERVICE"]
+          volumeMounts:
+            - name: env-volume
+              mountPath: /usr/share/nginx/html/assets/env.js
+              subPath: env.js
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: nginx-run
+              mountPath: /var/run
+            - name: tmp
+              mountPath: /tmp
           resources:
-            requests:
-              memory: {{ .Values.frontend.resources.requests.memory }}
-              cpu: {{ .Values.frontend.resources.requests.cpu }}
-            limits:
-              memory: {{ .Values.frontend.resources.limits.memory }}
-              cpu: {{ .Values.frontend.resources.limits.cpu }}
+{{ toYaml .Values.frontend.resources | indent 12 }}
           livenessProbe:
             httpGet:
               path: {{ .Values.frontend.probes.liveness.path }}
@@ -41,4 +71,13 @@ spec:
               port: {{ .Values.frontend.probes.readiness.port }}
             initialDelaySeconds: {{ .Values.frontend.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.frontend.probes.readiness.periodSeconds }}
-
+      volumes:
+        - name: env-volume
+          configMap:
+            name: {{ .Values.frontend.envConfigMapName }}
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

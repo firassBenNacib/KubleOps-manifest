@@ -1,0 +1,18 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-pdb
+  namespace: {{ .Values.frontend.namespace }}
+  labels:
+    app: frontend
+    app.kubernetes.io/name: {{ .Values.frontend.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.pdb }}"{{- end }}
+spec:
+  maxUnavailable: {{ .Values.pdb.frontend.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: frontend
+{{- end }}

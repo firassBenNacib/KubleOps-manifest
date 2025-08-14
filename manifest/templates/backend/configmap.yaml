@@ -3,5 +3,11 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.backend.configMapName }}
   namespace: {{ .Values.backend.namespace }}
+  labels:
+    app: backend
+    app.kubernetes.io/name: {{ .Values.backend.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.config }}"{{- end }}
 data:
   SPRING_DATASOURCE_URL: {{ .Values.backend.configMapData.SPRING_DATASOURCE_URL | quote }}

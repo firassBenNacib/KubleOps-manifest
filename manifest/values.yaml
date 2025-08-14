@@ -2,11 +2,12 @@ backend:
   namespace: backend
   name: backend
   serviceAccountName: backend-service-account
-  irsaRoleArn: arn:aws:iam::<your-account-id>:role/KubleOps-ecr-access-role
+  irsaRoleArn: ""
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/backend
     tag: "104"
     pullPolicy: Always
+  imagePullSecrets: []
   replicas: 2
   containerPort: 8088
   service:
@@ -32,6 +33,11 @@ backend:
       port: 8088
       initialDelaySeconds: 20
       periodSeconds: 10
+    startup:
+      path: /springMVC/actuator/health/readiness
+      port: 8088
+      failureThreshold: 30
+      periodSeconds: 10
   configMapName: backend-config
   secretName: db-credentials
   configMapData:
@@ -41,12 +47,15 @@ frontend:
   namespace: frontend
   name: frontend
   serviceAccountName: frontend-service-account
-  irsaRoleArn: arn:aws:iam::<your-account-id>:role/KubleOps-ecr-access-role
+  irsaRoleArn: ""
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/frontend
     tag: "105"
     pullPolicy: Always
+  imagePullSecrets: []
+  replicas: 1
   containerPort: 80
+  envConfigMapName: frontend-env
   service:
     name: frontend-service
     type: ClusterIP
@@ -105,3 +114,55 @@ ingress:
   externalDNS: true
   sslRedirect: true
   sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+
+podSecurity:
+  backend: restricted
+  frontend: restricted
+  database: baseline
+
+pdb:
+  enabled: true
+  backend:
+    minAvailable: 1
+  frontend:
+    maxUnavailable: 0
+  mysql:
+    maxUnavailable: 0
+
+hpa:
+  enabled: true
+  backend:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    cpu:
+      averageUtilization: 60
+    memory:
+      averageUtilization: 70
+  frontend:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 6
+    cpu:
+      averageUtilization: 50
+    memory:
+      averageUtilization: 70
+
+networkPolicy:
+  enabled: true
+  vpcCidrs: []
+  dnsNamespace: kube-system
+  dnsPodLabelKey: k8s-app
+  dnsPodLabelValue: kube-dns
+
+argo:
+  syncWaves:
+    enabled: true
+    namespaces: "-1"
+    config: "0"
+    services: "1"
+    networkPolicies: "1"
+    workloads: "2"
+    hpa: "3"
+    pdb: "3"
+    ingress: "4"

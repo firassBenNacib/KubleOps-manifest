@@ -1,0 +1,56 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-allow-list
+  namespace: {{ .Values.frontend.namespace }}
+  labels:
+    app: frontend
+    app.kubernetes.io/name: {{ .Values.frontend.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.networkPolicies }}"{{- end }}
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+{{- range $cidr := .Values.networkPolicy.vpcCidrs }}
+        - ipBlock:
+            cidr: {{ $cidr | quote }}
+{{- end }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.frontend.containerPort }}
+  egress:
+    - to:
+{{- range $cidr := .Values.networkPolicy.vpcCidrs }}
+        - ipBlock:
+            cidr: {{ $cidr | quote }}
+{{- end }}
+      ports:
+        - { protocol: TCP, port: 80 }
+        - { protocol: TCP, port: 443 }
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.backend.namespace }}
+          podSelector:
+            matchLabels:
+              app: backend
+      ports:
+        - { protocol: TCP, port: {{ .Values.backend.service.port }} }
+        - { protocol: TCP, port: {{ .Values.backend.containerPort }} }
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicy.dnsNamespace }}
+          podSelector:
+            matchLabels:
+              {{ .Values.networkPolicy.dnsPodLabelKey }}: {{ .Values.networkPolicy.dnsPodLabelValue }}
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+{{- end }}

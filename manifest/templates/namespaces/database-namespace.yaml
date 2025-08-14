@@ -1,4 +1,11 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: database
+  name: {{ .Values.mysql.namespace }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.namespaces }}"{{- end }}
+  labels:
+    pod-security.kubernetes.io/enforce: {{ .Values.podSecurity.database }}
+    pod-security.kubernetes.io/warn: {{ .Values.podSecurity.database }}
+    pod-security.kubernetes.io/audit: {{ .Values.podSecurity.database }}
+

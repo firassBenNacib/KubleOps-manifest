@@ -1,4 +1,10 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: frontend
+  name: {{ .Values.frontend.namespace }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.namespaces }}"{{- end }}
+  labels:
+    pod-security.kubernetes.io/enforce: {{ .Values.podSecurity.frontend }}
+    pod-security.kubernetes.io/warn: {{ .Values.podSecurity.frontend }}
+    pod-security.kubernetes.io/audit: {{ .Values.podSecurity.frontend }}

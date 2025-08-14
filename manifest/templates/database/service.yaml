@@ -1,12 +1,20 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.mysql.name }}
+  name: {{ .Values.mysql.service.name }}
   namespace: {{ .Values.mysql.namespace }}
+  labels:
+    app: mysql
+    app.kubernetes.io/name: {{ .Values.mysql.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.services }}"{{- end }}
 spec:
+  type: {{ .Values.mysql.service.type }}
   selector:
-    app: {{ .Values.mysql.name }}
+    app: mysql
   ports:
-    - port: {{ .Values.mysql.containerPort }}
-      targetPort: {{ .Values.mysql.containerPort }}
-  type: ClusterIP
+    - name: mysql
+      port: {{ .Values.mysql.service.port }}
+      targetPort: {{ .Values.mysql.service.targetPort }}
+      protocol: TCP

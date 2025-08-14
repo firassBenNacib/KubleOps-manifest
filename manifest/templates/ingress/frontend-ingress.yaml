@@ -4,8 +4,15 @@ kind: Ingress
 metadata:
   name: frontend-ingress
   namespace: {{ .Values.frontend.namespace }}
+  labels:
+    app: frontend
+    app.kubernetes.io/name: {{ .Values.frontend.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
   annotations:
     kubernetes.io/ingress.class: alb
+    {{- if .Values.argo.syncWaves.enabled }}
+    argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.ingress }}"
+    {{- end }}
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/load-balancer-name: kubleops-alb
     alb.ingress.kubernetes.io/target-type: ip

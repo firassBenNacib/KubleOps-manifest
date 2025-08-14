@@ -3,10 +3,18 @@ kind: Service
 metadata:
   name: {{ .Values.backend.service.name }}
   namespace: {{ .Values.backend.namespace }}
+  labels:
+    app: backend
+    app.kubernetes.io/name: {{ .Values.backend.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.services }}"{{- end }}
 spec:
-  selector:
-    app: {{ .Values.backend.name }}
-  ports:
-    - port: {{ .Values.backend.service.port }}
-      targetPort: {{ .Values.backend.service.targetPort }}
   type: {{ .Values.backend.service.type }}
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: {{ .Values.backend.service.port }}
+      targetPort: {{ .Values.backend.service.targetPort }}
+      protocol: TCP

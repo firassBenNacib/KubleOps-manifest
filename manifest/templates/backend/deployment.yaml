@@ -4,9 +4,14 @@ metadata:
   name: {{ .Values.backend.name }}
   namespace: {{ .Values.backend.namespace }}
   labels:
-    app: {{ .Values.backend.name }}
+    app: backend
+    app.kubernetes.io/name: {{ .Values.backend.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.workloads }}"{{- end }}
 spec:
   replicas: {{ .Values.backend.replicas }}
+  revisionHistoryLimit: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -14,19 +19,41 @@ spec:
       maxUnavailable: 25%
   selector:
     matchLabels:
-      app: {{ .Values.backend.name }}
+      app: backend
   template:
     metadata:
       labels:
-        app: {{ .Values.backend.name }}
+        app: backend
+        app.kubernetes.io/name: {{ .Values.backend.name }}
+        app.kubernetes.io/part-of: {{ .Chart.Name }}
     spec:
       serviceAccountName: {{ .Values.backend.serviceAccountName }}
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+{{- if .Values.backend.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.backend.imagePullSecrets | indent 8 }}
+{{- end }}
       containers:
         - name: {{ .Values.backend.name }}
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.backend.containerPort }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           env:
             - name: SPRING_DATASOURCE_URL
               valueFrom:
@@ -44,12 +71,7 @@ spec:
                   name: {{ .Values.backend.secretName }}
                   key: SPRING_DATASOURCE_PASSWORD
           resources:
-            requests:
-              memory: {{ .Values.backend.resources.requests.memory }}
-              cpu: {{ .Values.backend.resources.requests.cpu }}
-            limits:
-              memory: {{ .Values.backend.resources.limits.memory }}
-              cpu: {{ .Values.backend.resources.limits.cpu }}
+{{ toYaml .Values.backend.resources | indent 12 }}
           livenessProbe:
             httpGet:
               path: {{ .Values.backend.probes.liveness.path }}
@@ -62,3 +84,14 @@ spec:
               port: {{ .Values.backend.probes.readiness.port }}
             initialDelaySeconds: {{ .Values.backend.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
+{{- if .Values.backend.probes.startup }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.startup.path | default .Values.backend.probes.readiness.path }}
+              port: {{ .Values.backend.probes.startup.port | default .Values.backend.probes.readiness.port }}
+            failureThreshold: {{ .Values.backend.probes.startup.failureThreshold | default 30 }}
+            periodSeconds: {{ .Values.backend.probes.startup.periodSeconds | default 10 }}
+{{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}

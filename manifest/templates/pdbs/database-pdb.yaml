@@ -1,0 +1,18 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mysql-pdb
+  namespace: {{ .Values.mysql.namespace }}
+  labels:
+    app: mysql
+    app.kubernetes.io/name: {{ .Values.mysql.name }}
+    app.kubernetes.io/part-of: {{ .Chart.Name }}
+  annotations:
+    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.pdb }}"{{- end }}
+spec:
+  maxUnavailable: {{ .Values.pdb.mysql.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: mysql
+{{- end }}
