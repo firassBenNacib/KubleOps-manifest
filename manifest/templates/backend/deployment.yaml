@@ -84,17 +84,6 @@ spec:
               port: {{ .Values.backend.probes.readiness.port }}
             initialDelaySeconds: {{ .Values.backend.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
-{{- if .Values.backend.probes.startup.enabled | default true }}
-          startupProbe:
-            httpGet:
-              path: {{ .Values.backend.probes.startup.path | default .Values.backend.probes.readiness.path }}
-              port: {{ .Values.backend.probes.startup.port  | default .Values.backend.probes.readiness.port }}
-            initialDelaySeconds: {{ .Values.backend.probes.startup.initialDelaySeconds | default 30 }}
-            periodSeconds: {{ .Values.backend.probes.startup.periodSeconds | default 10 }}
-            timeoutSeconds: {{ .Values.backend.probes.startup.timeoutSeconds | default 2 }}
-            failureThreshold: {{ .Values.backend.probes.startup.failureThreshold | default 60 }}
-{{- end }}
-
       volumes:
         - name: tmp
           emptyDir: {}
