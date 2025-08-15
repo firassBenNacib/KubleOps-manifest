@@ -12,6 +12,9 @@ spec:
     helm:
       valueFiles:
         - values.yaml
+      parameters:
+        - name: argo.syncWaves.enabled
+          value: "false" 
   destination:
     server: https://kubernetes.default.svc
   # namespace: default
