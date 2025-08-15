@@ -54,7 +54,6 @@ frontend:
   imagePullSecrets: []
   replicas: 1
   containerPort: 80
-  envConfigMapName: frontend-env
   service:
     name: frontend-service
     type: ClusterIP
