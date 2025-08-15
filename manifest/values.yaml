@@ -34,10 +34,13 @@ backend:
       initialDelaySeconds: 20
       periodSeconds: 10
     startup:
+      enabled: true
       path: /springMVC/actuator/health/readiness
       port: 8088
-      failureThreshold: 30
+      initialDelaySeconds: 30
       periodSeconds: 10
+      timeoutSeconds: 2
+      failureThreshold: 60
   configMapName: backend-config
   secretName: db-credentials
   configMapData:
