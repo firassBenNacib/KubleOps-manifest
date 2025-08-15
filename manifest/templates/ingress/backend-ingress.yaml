@@ -14,10 +14,12 @@ metadata:
     argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.ingress }}"
     {{- end }}
     alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/load-balancer-name: kubleops-alb
     alb.ingress.kubernetes.io/target-type: ip
     {{- if .Values.ingress.groupName }}
     alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.groupName | quote }}
+    {{- end }}
+    {{- if .Values.ingress.loadBalancerName }}
+    alb.ingress.kubernetes.io/load-balancer-name: {{ .Values.ingress.loadBalancerName | quote }}
     {{- end }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
     {{- if .Values.ingress.sslRedirect }}
@@ -35,7 +37,7 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - host: {{ .Values.ingress.hosts.backend }}
+    - host: {{ .Values.ingress.hosts.backend | quote }}
       http:
         paths:
           - path: /springMVC

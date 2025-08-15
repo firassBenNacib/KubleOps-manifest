@@ -103,13 +103,14 @@ mysql:
 ingress:
   enabled: true
   groupName: kubleops-public
-  certificateArn: ""
+  certificateArn: ""            
   hosts:
     backend: api.devops.firasbennacib.com
     frontend: app.devops.firasbennacib.com
   externalDNS: true
   sslRedirect: true
   sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+  loadBalancerName: ""
 
 podSecurity:
   backend: restricted
@@ -153,7 +154,7 @@ networkPolicy:
 
 argo:
   syncWaves:
-    enabled: true
+    enabled: false
     namespaces: "-1"
     config: "0"
     services: "1"
