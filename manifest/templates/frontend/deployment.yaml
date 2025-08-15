@@ -41,12 +41,17 @@ spec:
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}
+{{- if .Values.frontend.securityContext }}
+          securityContext:
+{{ toYaml .Values.frontend.securityContext | indent 12 }}
+{{- else }}
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
               add: ["NET_BIND_SERVICE"]
+{{- end }}
           volumeMounts:
             - name: nginx-cache
               mountPath: /var/cache/nginx
