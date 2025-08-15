@@ -14,7 +14,9 @@ spec:
   podSelector:
     matchLabels:
       app: mysql
-  policyTypes: [Ingress, Egress]
+  policyTypes:
+    - Ingress
+    - Egress
   ingress:
     - from:
         - namespaceSelector:

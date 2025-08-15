@@ -14,7 +14,9 @@ spec:
   podSelector:
     matchLabels:
       app: frontend
-  policyTypes: [Ingress, Egress]
+  policyTypes:
+    - Ingress
+    - Egress
   ingress:
     - from:
 {{- range $cidr := .Values.networkPolicy.vpcCidrs }}

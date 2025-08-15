@@ -8,13 +8,13 @@ metadata:
     app: backend
     app.kubernetes.io/name: {{ .Values.backend.name }}
     app.kubernetes.io/part-of: {{ .Chart.Name }}
-  annotations:
-    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.networkPolicies }}"{{- end }}
 spec:
   podSelector:
     matchLabels:
       app: backend
-  policyTypes: [Ingress, Egress]
+  policyTypes:
+    - Ingress
+    - Egress
   ingress:
     - from:
 {{- range $cidr := .Values.networkPolicy.vpcCidrs }}
@@ -53,6 +53,16 @@ spec:
             matchLabels:
               {{ .Values.networkPolicy.dnsPodLabelKey }}: {{ .Values.networkPolicy.dnsPodLabelValue }}
       ports:
-        - { protocol: UDP, port: 53 }
-        - { protocol: TCP, port: 53 }
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 465
 {{- end }}
