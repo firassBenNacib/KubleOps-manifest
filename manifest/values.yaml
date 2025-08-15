@@ -47,6 +47,7 @@ backend:
   secretName: db-credentials
   configMapData:
     SPRING_DATASOURCE_URL: jdbc:mysql://mysql.database.svc.cluster.local:3306/VaccinationApp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
 frontend:
   namespace: frontend
   name: frontend
@@ -87,6 +88,7 @@ frontend:
     readOnlyRootFilesystem: true
     capabilities:
       drop: ["ALL"]
+
 mysql:
   namespace: database
   name: mysql
@@ -110,21 +112,25 @@ mysql:
       cpu: "500m"
   secretName: mysql-secret
   configMapName: mysql-config
+
 ingress:
   enabled: true
   groupName: kubleops-public
-  certificateArn: ""            
+  certificateArn: ""
   hosts:
     backend: api.devops.firasbennacib.com
     frontend: app.devops.firasbennacib.com
   externalDNS: true
   sslRedirect: true
   sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
-  loadBalancerName: ""
+  loadBalancerName: "kubleops-public-alb"   # stable name for the shared ALB
+  ipAddressType: ipv4                       # keep IPv4-only (prevents AAAA in Route53)
+
 podSecurity:
   backend: restricted
   frontend: restricted
   database: baseline
+
 pdb:
   enabled: true
   backend:
@@ -133,6 +139,7 @@ pdb:
     maxUnavailable: 0
   mysql:
     maxUnavailable: 0
+
 hpa:
   enabled: true
   backend:
@@ -195,12 +202,14 @@ hpa:
           - type: Pods
             value: 1
             periodSeconds: 60
+
 networkPolicy:
   enabled: true
   vpcCidrs: []
   dnsNamespace: kube-system
   dnsPodLabelKey: k8s-app
   dnsPodLabelValue: kube-dns
+
 argo:
   syncWaves:
     enabled: false
