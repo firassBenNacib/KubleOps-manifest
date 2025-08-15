@@ -56,12 +56,12 @@ frontend:
     pullPolicy: Always
   imagePullSecrets: []
   replicas: 1
-  containerPort: 80
+  containerPort: 8080
   service:
     name: frontend-service
     type: ClusterIP
     port: 80
-    targetPort: 80
+    targetPort: 8080
   resources:
     requests:
       memory: "256Mi"
@@ -72,19 +72,19 @@ frontend:
   probes:
     liveness:
       path: /
-      port: 80
+      port: 8080
       initialDelaySeconds: 15
       periodSeconds: 15
     readiness:
       path: /
-      port: 80
+      port: 8080
       initialDelaySeconds: 5
       periodSeconds: 10
   securityContext:
     allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
     capabilities:
-      add:
-        - NET_BIND_SERVICE
+      drop: ["ALL"]
 mysql:
   namespace: database
   name: mysql
