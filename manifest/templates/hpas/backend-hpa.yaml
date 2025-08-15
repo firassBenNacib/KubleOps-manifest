@@ -24,10 +24,16 @@ spec:
         target:
           type: Utilization
           averageUtilization: {{ .Values.hpa.backend.cpu.averageUtilization }}
+    {{- if or (not (hasKey .Values.hpa.backend.memory "enabled")) .Values.hpa.backend.memory.enabled }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
           averageUtilization: {{ .Values.hpa.backend.memory.averageUtilization }}
+    {{- end }}
+  {{- with .Values.hpa.backend.behavior }}
+  behavior:
+{{ toYaml . | indent 4 }}
+  {{- end }}
 {{- end }}

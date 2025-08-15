@@ -121,12 +121,10 @@ ingress:
   sslRedirect: true
   sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
   loadBalancerName: ""
-
 podSecurity:
   backend: restricted
   frontend: restricted
   database: baseline
-
 pdb:
   enabled: true
   backend:
@@ -135,7 +133,6 @@ pdb:
     maxUnavailable: 0
   mysql:
     maxUnavailable: 0
-
 hpa:
   enabled: true
   backend:
@@ -146,6 +143,28 @@ hpa:
       averageUtilization: 60
     memory:
       averageUtilization: 70
+      enabled: false
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 60
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 60
+          - type: Pods
+            value: 2
+            periodSeconds: 60
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        selectPolicy: Min
+        policies:
+          - type: Percent
+            value: 30
+            periodSeconds: 60
+          - type: Pods
+            value: 1
+            periodSeconds: 60
   frontend:
     enabled: true
     minReplicas: 1
@@ -154,14 +173,34 @@ hpa:
       averageUtilization: 50
     memory:
       averageUtilization: 70
-
+      enabled: false
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 60
+        selectPolicy: Max
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 60
+          - type: Pods
+            value: 1
+            periodSeconds: 60
+      scaleDown:
+        stabilizationWindowSeconds: 300
+        selectPolicy: Min
+        policies:
+          - type: Percent
+            value: 30
+            periodSeconds: 60
+          - type: Pods
+            value: 1
+            periodSeconds: 60
 networkPolicy:
   enabled: true
   vpcCidrs: []
   dnsNamespace: kube-system
   dnsPodLabelKey: k8s-app
   dnsPodLabelValue: kube-dns
-
 argo:
   syncWaves:
     enabled: false
