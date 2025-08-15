@@ -23,16 +23,26 @@ backend:
       memory: "1Gi"
       cpu: "500m"
   probes:
+    startup:
+      path: /springMVC/actuator/health/liveness
+      port: 8088
+      periodSeconds: 10
+      timeoutSeconds: 2
+      failureThreshold: 36
     liveness:
       path: /springMVC/actuator/health/liveness
       port: 8088
-      initialDelaySeconds: 45
+      initialDelaySeconds: 10
       periodSeconds: 15
+      timeoutSeconds: 2
+      failureThreshold: 3
     readiness:
       path: /springMVC/actuator/health/readiness
       port: 8088
-      initialDelaySeconds: 20
-      periodSeconds: 10
+      initialDelaySeconds: 40
+      periodSeconds: 5
+      timeoutSeconds: 2
+      failureThreshold: 6
   configMapName: backend-config
   secretName: db-credentials
   configMapData:

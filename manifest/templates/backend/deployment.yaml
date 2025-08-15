@@ -7,8 +7,6 @@ metadata:
     app: backend
     app.kubernetes.io/name: {{ .Values.backend.name }}
     app.kubernetes.io/part-of: {{ .Chart.Name }}
-  annotations:
-    {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.workloads }}"{{- end }}
 spec:
   replicas: {{ .Values.backend.replicas }}
   revisionHistoryLimit: 3
@@ -29,6 +27,7 @@ spec:
     spec:
       serviceAccountName: {{ .Values.backend.serviceAccountName }}
       automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -72,18 +71,29 @@ spec:
                   key: SPRING_DATASOURCE_PASSWORD
           resources:
 {{ toYaml .Values.backend.resources | indent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.startup.path }}
+              port: {{ .Values.backend.probes.startup.port }}
+            periodSeconds: {{ .Values.backend.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.startup.failureThreshold }}
           livenessProbe:
             httpGet:
               path: {{ .Values.backend.probes.liveness.path }}
               port: {{ .Values.backend.probes.liveness.port }}
             initialDelaySeconds: {{ .Values.backend.probes.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.backend.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.liveness.failureThreshold }}
           readinessProbe:
             httpGet:
               path: {{ .Values.backend.probes.readiness.path }}
               port: {{ .Values.backend.probes.readiness.port }}
             initialDelaySeconds: {{ .Values.backend.probes.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.backend.probes.readiness.failureThreshold }}
       volumes:
         - name: tmp
           emptyDir: {}
