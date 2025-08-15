@@ -123,8 +123,8 @@ ingress:
   externalDNS: true
   sslRedirect: true
   sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
-  loadBalancerName: "kubleops-public-alb"   # stable name for the shared ALB
-  ipAddressType: ipv4                       # keep IPv4-only (prevents AAAA in Route53)
+  loadBalancerName: "kubleops-public-alb"  
+  ipAddressType: ipv4                      
 
 podSecurity:
   backend: restricted
