@@ -144,7 +144,7 @@ hpa:
   enabled: true
   backend:
     enabled: true
-    minReplicas: 2
+    minReplicas: 1
     maxReplicas: 8
     cpu:
       averageUtilization: 60
