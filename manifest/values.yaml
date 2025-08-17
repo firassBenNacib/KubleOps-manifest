@@ -17,10 +17,10 @@ backend:
     targetPort: 8088
   resources:
     requests:
-      memory: "512Mi"
-      cpu: "250m"
+      memory: "256Mi"
+      cpu: "200m"
     limits:
-      memory: "1Gi"
+      memory: "512Mi"
       cpu: "500m"
   probes:
     startup:
@@ -136,9 +136,9 @@ pdb:
   backend:
     minAvailable: 1
   frontend:
-    maxUnavailable: 0
+    maxUnavailable: 1
   mysql:
-    maxUnavailable: 0
+    maxUnavailable: 1
 
 hpa:
   enabled: true
