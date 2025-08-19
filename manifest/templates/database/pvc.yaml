@@ -1,12 +1,14 @@
+{{- if .Values.mysql.existingClaim }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
-  namespace: database
+  name: {{ .Values.mysql.existingClaim }}
+  namespace: {{ .Values.mysql.namespace }}
 spec:
   accessModes:
-    - ReadWriteOnce
+{{ toYaml .Values.mysql.persistence.accessModes | indent 4 }}
   resources:
     requests:
-      storage: 1Gi
-  storageClassName: gp3
+      storage: {{ .Values.mysql.persistence.size | quote }}
+  storageClassName: {{ .Values.mysql.persistence.storageClassName | quote }}
+{{- end }}

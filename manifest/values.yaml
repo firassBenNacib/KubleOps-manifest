@@ -97,7 +97,8 @@ mysql:
     tag: "8.0"
     pullPolicy: IfNotPresent
   containerPort: 3306
-  pvcName: mysql-pvc
+  replicas: 1
+  secretName: mysql-secret
   service:
     name: mysql
     type: ClusterIP
@@ -110,8 +111,33 @@ mysql:
     limits:
       memory: "1Gi"
       cpu: "500m"
-  secretName: mysql-secret
-  configMapName: mysql-config
+  persistence:
+    enabled: true
+    storageClassName: gp3
+    accessModes: ["ReadWriteOnce"]
+    size: 10Gi
+  existingClaim: ""        
+  pvcName: mysql-pvc       
+
+  podSecurityContext:
+    fsGroup: 999
+    fsGroupChangePolicy: "OnRootMismatch"
+  extraArgs: []        
+  probes:
+    startup:
+      periodSeconds: 5
+      failureThreshold: 60
+    readiness:
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      failureThreshold: 6
+    liveness:
+      initialDelaySeconds: 30
+      periodSeconds: 20
+      failureThreshold: 3
+  storageClass:
+    createDefault: false 
+
 
 ingress:
   enabled: true
