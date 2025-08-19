@@ -47,6 +47,34 @@ backend:
   secretName: db-credentials
   configMapData:
     SPRING_DATASOURCE_URL: jdbc:mysql://mysql.database.svc.cluster.local:3306/VaccinationApp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+  scheduling:
+    capacityType: "on-demand"
+    nodeSelector:
+      workload-tier: backend
+    tolerations:
+      - key: "tier"
+        operator: "Equal"
+        value: "backend"
+        effect: "NoSchedule"
+      - key: "capacity"
+        operator: "Equal"
+        value: "ondemand"
+        effect: "NoSchedule"
+    topologySpread:
+      enabled: true
+      constraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: backend
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: backend
 
 frontend:
   namespace: frontend
@@ -88,6 +116,37 @@ frontend:
     readOnlyRootFilesystem: true
     capabilities:
       drop: ["ALL"]
+  scheduling:
+    nodeSelector:
+      workload-tier: frontend
+    tolerations:
+      - key: "tier"
+        operator: "Equal"
+        value: "frontend"
+        effect: "NoSchedule"
+      - key: "capacity"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
+      - key: "capacity"
+        operator: "Equal"
+        value: "ondemand"
+        effect: "NoSchedule"
+    topologySpread:
+      enabled: true
+      constraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: frontend
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: frontend
 
 mysql:
   namespace: database
@@ -235,6 +294,11 @@ networkPolicy:
   dnsNamespace: kube-system
   dnsPodLabelKey: k8s-app
   dnsPodLabelValue: kube-dns
+
+karpenter:
+  clusterName: "KubleOps"                         
+  nodeRoleName: "KarpenterNodeRole-KubleOps"       
+  zones: ["us-east-1a", "us-east-1b"]     
 
 argo:
   syncWaves:

@@ -5,11 +5,11 @@ metadata:
   namespace: {{ .Values.backend.namespace }}
   labels:
     app: backend
+    workload-tier: backend
     app.kubernetes.io/name: {{ .Values.backend.name }}
     app.kubernetes.io/part-of: {{ .Chart.Name }}
 spec:
   replicas: {{ .Values.backend.replicas }}
-  revisionHistoryLimit: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -22,6 +22,7 @@ spec:
     metadata:
       labels:
         app: backend
+        workload-tier: backend
         app.kubernetes.io/name: {{ .Values.backend.name }}
         app.kubernetes.io/part-of: {{ .Chart.Name }}
     spec:
@@ -39,6 +40,27 @@ spec:
       imagePullSecrets:
 {{ toYaml .Values.backend.imagePullSecrets | indent 8 }}
 {{- end }}
+
+{{- if or .Values.backend.scheduling.nodeSelector .Values.backend.scheduling.capacityType }}
+      nodeSelector:
+{{- if .Values.backend.scheduling.nodeSelector }}
+{{ toYaml .Values.backend.scheduling.nodeSelector | indent 8 }}
+{{- end }}
+{{- if .Values.backend.scheduling.capacityType }}
+        karpenter.sh/capacity-type: {{ .Values.backend.scheduling.capacityType | quote }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.backend.scheduling.tolerations }}
+      tolerations:
+{{ toYaml .Values.backend.scheduling.tolerations | indent 8 }}
+{{- end }}
+
+{{- if and .Values.backend.scheduling.topologySpread.enabled .Values.backend.scheduling.topologySpread.constraints }}
+      topologySpreadConstraints:
+{{ toYaml .Values.backend.scheduling.topologySpread.constraints | indent 8 }}
+{{- end }}
+
       containers:
         - name: {{ .Values.backend.name }}
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"

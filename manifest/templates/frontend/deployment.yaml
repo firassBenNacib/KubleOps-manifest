@@ -5,13 +5,13 @@ metadata:
   namespace: {{ .Values.frontend.namespace }}
   labels:
     app: frontend
+    workload-tier: frontend
     app.kubernetes.io/name: {{ .Values.frontend.name }}
     app.kubernetes.io/part-of: {{ .Chart.Name }}
   annotations:
     {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.workloads }}"{{- end }}
 spec:
   replicas: {{ .Values.frontend.replicas | default 1 }}
-  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: frontend
@@ -19,6 +19,7 @@ spec:
     metadata:
       labels:
         app: frontend
+        workload-tier: frontend
         app.kubernetes.io/name: {{ .Values.frontend.name }}
         app.kubernetes.io/part-of: {{ .Chart.Name }}
     spec:
@@ -35,6 +36,22 @@ spec:
       imagePullSecrets:
 {{ toYaml .Values.frontend.imagePullSecrets | indent 8 }}
 {{- end }}
+
+{{- if .Values.frontend.scheduling.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.frontend.scheduling.nodeSelector | indent 8 }}
+{{- end }}
+
+{{- if .Values.frontend.scheduling.tolerations }}
+      tolerations:
+{{ toYaml .Values.frontend.scheduling.tolerations | indent 8 }}
+{{- end }}
+
+{{- if and .Values.frontend.scheduling.topologySpread.enabled .Values.frontend.scheduling.topologySpread.constraints }}
+      topologySpreadConstraints:
+{{ toYaml .Values.frontend.scheduling.topologySpread.constraints | indent 8 }}
+{{- end }}
+
       containers:
         - name: {{ .Values.frontend.name }}
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
