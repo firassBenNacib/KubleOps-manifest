@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.mysql.service.name }}-headless
+  name: {{ .Values.mysql.service.name }}   
   namespace: {{ .Values.mysql.namespace }}
   labels:
     app: {{ .Values.mysql.name }}
@@ -10,10 +10,11 @@ metadata:
   annotations:
     {{- if .Values.argo.syncWaves.enabled }}argocd.argoproj.io/sync-wave: "{{ .Values.argo.syncWaves.services }}"{{- end }}
 spec:
-  clusterIP: None
-  ports:
-    - name: mysql
-      port: {{ .Values.mysql.service.port }}
-      targetPort: {{ .Values.mysql.service.targetPort }}
+  type: {{ .Values.mysql.service.type }}   
   selector:
     app: {{ .Values.mysql.name }}
+  ports:
+    - name: mysql
+      port: {{ .Values.mysql.service.port }}     
+      targetPort: {{ .Values.mysql.service.targetPort }}
+      protocol: TCP
