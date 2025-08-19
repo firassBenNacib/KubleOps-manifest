@@ -5,7 +5,7 @@ backend:
   irsaRoleArn: ""
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/backend
-    tag: "136"
+    tag: "142"
     pullPolicy: Always
   imagePullSecrets: []
   replicas: 2
@@ -75,7 +75,6 @@ backend:
           labelSelector:
             matchLabels:
               app: backend
-
 frontend:
   namespace: frontend
   name: frontend
@@ -147,7 +146,6 @@ frontend:
           labelSelector:
             matchLabels:
               app: frontend
-
 mysql:
   namespace: database
   name: mysql
@@ -175,13 +173,12 @@ mysql:
     storageClassName: gp3
     accessModes: ["ReadWriteOnce"]
     size: 10Gi
-  existingClaim: ""        
-  pvcName: mysql-pvc       
-
+  existingClaim: ""
+  pvcName: mysql-pvc
   podSecurityContext:
     fsGroup: 999
     fsGroupChangePolicy: "OnRootMismatch"
-  extraArgs: []        
+  extraArgs: []
   probes:
     startup:
       periodSeconds: 5
@@ -195,9 +192,7 @@ mysql:
       periodSeconds: 20
       failureThreshold: 3
   storageClass:
-    createDefault: false 
-
-
+    createDefault: false
 ingress:
   enabled: true
   groupName: kubleops-public
@@ -208,14 +203,12 @@ ingress:
   externalDNS: true
   sslRedirect: true
   sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
-  loadBalancerName: "kubleops-public-alb"  
-  ipAddressType: ipv4                      
-
+  loadBalancerName: "kubleops-public-alb"
+  ipAddressType: ipv4
 podSecurity:
   backend: restricted
   frontend: restricted
   database: baseline
-
 pdb:
   enabled: true
   backend:
@@ -224,7 +217,6 @@ pdb:
     maxUnavailable: 1
   mysql:
     maxUnavailable: 1
-
 hpa:
   enabled: true
   backend:
@@ -287,19 +279,16 @@ hpa:
           - type: Pods
             value: 1
             periodSeconds: 60
-
 networkPolicy:
   enabled: true
   vpcCidrs: []
   dnsNamespace: kube-system
   dnsPodLabelKey: k8s-app
   dnsPodLabelValue: kube-dns
-
 karpenter:
-  clusterName: "KubleOps"                         
-  nodeRoleName: "KarpenterNodeRole-KubleOps"       
-  zones: ["us-east-1a", "us-east-1b"]     
-
+  clusterName: "KubleOps"
+  nodeRoleName: "KarpenterNodeRole-KubleOps"
+  zones: ["us-east-1a", "us-east-1b"]
 argo:
   syncWaves:
     enabled: false
