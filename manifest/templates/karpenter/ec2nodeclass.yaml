@@ -3,7 +3,7 @@ kind: EC2NodeClass
 metadata:
   name: default
 spec:
-  role: "{{ .Values.karpenter.nodeRoleName }}"
+  role: {{ required "Set .Values.karpenter.nodeRoleArn to the IAM role ARN" .Values.karpenter.nodeRoleArn | quote }}
   amiFamily: AL2023
   amiSelectorTerms:
     - alias: al2023@latest
