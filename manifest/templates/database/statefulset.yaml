@@ -26,10 +26,32 @@ spec:
         app.kubernetes.io/part-of: {{ .Chart.Name }}
     spec:
       terminationGracePeriodSeconds: 60
+
 {{- if .Values.mysql.podSecurityContext }}
       securityContext:
 {{ toYaml .Values.mysql.podSecurityContext | indent 8 }}
 {{- end }}
+
+{{- if or .Values.mysql.scheduling.nodeSelector .Values.mysql.scheduling.capacityType }}
+      nodeSelector:
+{{- if .Values.mysql.scheduling.nodeSelector }}
+{{ toYaml .Values.mysql.scheduling.nodeSelector | indent 8 }}
+{{- end }}
+{{- if .Values.mysql.scheduling.capacityType }}
+        karpenter.sh/capacity-type: {{ .Values.mysql.scheduling.capacityType | quote }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.mysql.scheduling.tolerations }}
+      tolerations:
+{{ toYaml .Values.mysql.scheduling.tolerations | indent 8 }}
+{{- end }}
+
+{{- if and .Values.mysql.scheduling.topologySpread.enabled .Values.mysql.scheduling.topologySpread.constraints }}
+      topologySpreadConstraints:
+{{ toYaml .Values.mysql.scheduling.topologySpread.constraints | indent 8 }}
+{{- end }}
+
       containers:
         - name: {{ .Values.mysql.name }}
           image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
@@ -95,6 +117,7 @@ spec:
           persistentVolumeClaim:
             claimName: {{ .Values.mysql.existingClaim | default .Values.mysql.pvcName }}
       {{- end }}
+
   {{- if and (not .Values.mysql.existingClaim) .Values.mysql.persistence.enabled }}
   volumeClaimTemplates:
     - metadata:

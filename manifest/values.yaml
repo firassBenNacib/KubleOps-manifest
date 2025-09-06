@@ -75,6 +75,7 @@ backend:
           labelSelector:
             matchLabels:
               app: backend
+
 frontend:
   namespace: frontend
   name: frontend
@@ -146,6 +147,7 @@ frontend:
           labelSelector:
             matchLabels:
               app: frontend
+
 mysql:
   namespace: database
   name: mysql
@@ -193,6 +195,35 @@ mysql:
       failureThreshold: 3
   storageClass:
     createDefault: false
+  scheduling:
+    capacityType: "on-demand"
+    nodeSelector:
+      workload-tier: backend
+    tolerations:
+      - key: "tier"
+        operator: "Equal"
+        value: "backend"
+        effect: "NoSchedule"
+      - key: "capacity"
+        operator: "Equal"
+        value: "ondemand"
+        effect: "NoSchedule"
+    topologySpread:
+      enabled: true
+      constraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: mysql
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: mysql
+
 ingress:
   enabled: true
   groupName: kubleops-public
@@ -205,10 +236,12 @@ ingress:
   sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
   loadBalancerName: "kubleops-public-alb"
   ipAddressType: ipv4
+
 podSecurity:
   backend: restricted
   frontend: restricted
   database: baseline
+
 pdb:
   enabled: true
   backend:
@@ -217,6 +250,7 @@ pdb:
     maxUnavailable: 1
   mysql:
     maxUnavailable: 1
+
 hpa:
   enabled: true
   backend:
@@ -279,16 +313,19 @@ hpa:
           - type: Pods
             value: 1
             periodSeconds: 60
+
 networkPolicy:
   enabled: true
   vpcCidrs: []
   dnsNamespace: kube-system
   dnsPodLabelKey: k8s-app
   dnsPodLabelValue: kube-dns
+
 karpenter:
   clusterName: "KubleOps"
-  nodeRoleArn: "" 
+  nodeRoleArn: ""
   zones: ["us-east-1a", "us-east-1b"]
+
 argo:
   syncWaves:
     enabled: false
