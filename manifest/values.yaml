@@ -172,7 +172,7 @@ mysql:
       cpu: "500m"
   persistence:
     enabled: true
-    storageClassName: gp3
+    storageClassName: gp3-wffc   
     accessModes: ["ReadWriteOnce"]
     size: 10Gi
   existingClaim: ""
@@ -194,7 +194,7 @@ mysql:
       periodSeconds: 20
       failureThreshold: 3
   storageClass:
-    createDefault: false
+    createDefault: true        
   scheduling:
     capacityType: "on-demand"
     nodeSelector:
