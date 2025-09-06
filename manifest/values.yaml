@@ -75,7 +75,6 @@ backend:
           labelSelector:
             matchLabels:
               app: backend
-
 frontend:
   namespace: frontend
   name: frontend
@@ -83,7 +82,7 @@ frontend:
   irsaRoleArn: ""
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/frontend
-    tag: "156"
+    tag: "158"
     pullPolicy: Always
   imagePullSecrets: []
   replicas: 1
@@ -147,7 +146,6 @@ frontend:
           labelSelector:
             matchLabels:
               app: frontend
-
 mysql:
   namespace: database
   name: mysql
@@ -172,7 +170,7 @@ mysql:
       cpu: "500m"
   persistence:
     enabled: true
-    storageClassName: gp3-wffc   
+    storageClassName: gp3-wffc
     accessModes: ["ReadWriteOnce"]
     size: 10Gi
   existingClaim: ""
@@ -194,7 +192,7 @@ mysql:
       periodSeconds: 20
       failureThreshold: 3
   storageClass:
-    createDefault: true        
+    createDefault: true
   scheduling:
     capacityType: "on-demand"
     nodeSelector:
@@ -223,7 +221,6 @@ mysql:
           labelSelector:
             matchLabels:
               app: mysql
-
 ingress:
   enabled: true
   groupName: kubleops-public
@@ -236,12 +233,10 @@ ingress:
   sslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
   loadBalancerName: "kubleops-public-alb"
   ipAddressType: ipv4
-
 podSecurity:
   backend: restricted
   frontend: restricted
   database: baseline
-
 pdb:
   enabled: true
   backend:
@@ -250,7 +245,6 @@ pdb:
     maxUnavailable: 1
   mysql:
     maxUnavailable: 1
-
 hpa:
   enabled: true
   backend:
@@ -313,19 +307,16 @@ hpa:
           - type: Pods
             value: 1
             periodSeconds: 60
-
 networkPolicy:
   enabled: true
   vpcCidrs: []
   dnsNamespace: kube-system
   dnsPodLabelKey: k8s-app
   dnsPodLabelValue: kube-dns
-
 karpenter:
   clusterName: "KubleOps"
   nodeRoleArn: ""
   zones: ["us-east-1a", "us-east-1b"]
-
 argo:
   syncWaves:
     enabled: false
