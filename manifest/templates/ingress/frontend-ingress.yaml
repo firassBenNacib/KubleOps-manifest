@@ -16,6 +16,7 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/ip-address-type: {{ .Values.ingress.ipAddressType | default "ipv4" }}
+    alb.ingress.kubernetes.io/healthcheck-path: "/"
     {{- if .Values.ingress.groupName }}
     alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.groupName | quote }}
     {{- end }}
