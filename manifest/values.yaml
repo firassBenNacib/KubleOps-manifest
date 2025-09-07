@@ -8,7 +8,7 @@ backend:
     tag: "160"
     pullPolicy: Always
   imagePullSecrets: []
-  replicas: 2
+  replicas: 1
   containerPort: 8088
   service:
     name: backend-service
