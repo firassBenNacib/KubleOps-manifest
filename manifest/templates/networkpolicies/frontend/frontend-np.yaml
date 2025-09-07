@@ -33,8 +33,10 @@ spec:
             cidr: {{ $cidr | quote }}
 {{- end }}
       ports:
-        - { protocol: TCP, port: 80 }
-        - { protocol: TCP, port: 443 }
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
     - to:
         - namespaceSelector:
             matchLabels:
@@ -43,8 +45,10 @@ spec:
             matchLabels:
               app: backend
       ports:
-        - { protocol: TCP, port: {{ .Values.backend.service.port }} }
-        - { protocol: TCP, port: {{ .Values.backend.containerPort }} }
+        - protocol: TCP
+          port: {{ .Values.backend.service.port }}
+        - protocol: TCP
+          port: {{ .Values.backend.containerPort }}
     - to:
         - namespaceSelector:
             matchLabels:
@@ -53,6 +57,30 @@ spec:
             matchLabels:
               {{ .Values.networkPolicy.dnsPodLabelKey }}: {{ .Values.networkPolicy.dnsPodLabelValue }}
       ports:
-        - { protocol: UDP, port: 53 }
-        - { protocol: TCP, port: 53 }
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+{{- if .Values.networkPolicy.linkLocalDnsCidrs }}
+    - to:
+{{- range $cidr := .Values.networkPolicy.linkLocalDnsCidrs }}
+        - ipBlock:
+            cidr: {{ $cidr | quote }}
+{{- end }}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+{{- end }}
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 465
+        - protocol: TCP
+          port: 587
 {{- end }}
