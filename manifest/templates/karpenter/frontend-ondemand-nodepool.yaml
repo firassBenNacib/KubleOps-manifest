@@ -3,7 +3,7 @@ kind: NodePool
 metadata:
   name: frontend-ondemand
 spec:
-  weight: 10
+  weight: 100
   template:
     metadata:
       labels:
@@ -34,6 +34,10 @@ spec:
           operator: In
           values:
 {{ toYaml .Values.karpenter.zones | indent 12 }}
+  limits:
+    resources:
+      cpu: "2"
+      memory: "4Gi"
   disruption:
     budgets:
       - nodes: "10%"

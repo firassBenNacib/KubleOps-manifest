@@ -1,13 +1,13 @@
 apiVersion: karpenter.sh/v1
 kind: NodePool
 metadata:
-  name: frontend-spot
+  name: database-ondemand
 spec:
-  weight: 50
+  weight: 100
   template:
     metadata:
       labels:
-        workload-tier: frontend
+        workload-tier: database
     spec:
       nodeClassRef:
         group: karpenter.k8s.aws
@@ -15,15 +15,15 @@ spec:
         name: default
       taints:
         - key: tier
-          value: frontend
+          value: database
           effect: NoSchedule
         - key: capacity
-          value: spot
+          value: ondemand
           effect: NoSchedule
       requirements:
         - key: karpenter.sh/capacity-type
           operator: In
-          values: ["spot"]
+          values: ["on-demand"]
         - key: kubernetes.io/os
           operator: In
           values: ["linux"]
@@ -35,12 +35,5 @@ spec:
           values:
 {{ toYaml .Values.karpenter.zones | indent 12 }}
   disruption:
-    budgets:
-      - nodes: "10%"
-        reasons: ["Underutilized", "Empty"]
-      - nodes: "1"
-        reasons: ["Drifted"]
-        schedule: "0 22 * * 1-5"
-        duration: "8h"
-    consolidationPolicy: WhenEmptyOrUnderutilized
-    consolidateAfter: 30s
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 5m

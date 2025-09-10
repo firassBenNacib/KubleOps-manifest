@@ -196,11 +196,11 @@ mysql:
   scheduling:
     capacityType: "on-demand"
     nodeSelector:
-      workload-tier: backend
+      workload-tier: database
     tolerations:
       - key: "tier"
         operator: "Equal"
-        value: "backend"
+        value: "database"
         effect: "NoSchedule"
       - key: "capacity"
         operator: "Equal"

@@ -2,12 +2,23 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: gp3-wffc
+  name: {{ .Values.mysql.persistence.storageClassName | default "gp3-wffc" }}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
 provisioner: ebs.csi.aws.com
 parameters:
   type: gp3
   fsType: ext4
+  encrypted: "true"
 allowVolumeExpansion: true
 reclaimPolicy: Delete
 volumeBindingMode: WaitForFirstConsumer
+
+{{- if .Values.karpenter.zones }}
+allowedTopologies:
+  - matchLabelExpressions:
+      - key: topology.kubernetes.io/zone
+        values:
+{{ toYaml .Values.karpenter.zones | indent 10 }}
+{{- end }}
 {{- end }}
