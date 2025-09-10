@@ -73,14 +73,16 @@ spec:
         - protocol: TCP
           port: 53
 {{- end }}
+{{- if .Values.networkPolicy.clusterDnsServiceCidrs }}
     - to:
+{{- range $cidr := .Values.networkPolicy.clusterDnsServiceCidrs }}
         - ipBlock:
-            cidr: 0.0.0.0/0
+            cidr: {{ $cidr | quote }}
+{{- end }}
       ports:
+        - protocol: UDP
+          port: 53
         - protocol: TCP
-          port: 443
-        - protocol: TCP
-          port: 465
-        - protocol: TCP
-          port: 587
+          port: 53
+{{- end }}
 {{- end }}

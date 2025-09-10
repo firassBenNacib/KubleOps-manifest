@@ -314,6 +314,7 @@ networkPolicy:
   dnsPodLabelKey: k8s-app
   dnsPodLabelValue: kube-dns
   linkLocalDnsCidrs: []
+  clusterDnsServiceCidrs: []  
 
 karpenter:
   clusterName: "KubleOps"
