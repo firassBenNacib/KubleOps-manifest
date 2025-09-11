@@ -41,38 +41,4 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
-{{- if .Values.networkPolicy.linkLocalDnsCidrs }}
-    - to:
-{{- range $cidr := .Values.networkPolicy.linkLocalDnsCidrs }}
-        - ipBlock:
-            cidr: {{ $cidr | quote }}
-{{- end }}
-      ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-{{- end }}
-{{- if .Values.networkPolicy.clusterDnsServiceCidrs }}
-    - to:
-{{- range $cidr := .Values.networkPolicy.clusterDnsServiceCidrs }}
-        - ipBlock:
-            cidr: {{ $cidr | quote }}
-{{- end }}
-      ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-{{- end }}
-    - to:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-      ports:
-        - protocol: TCP
-          port: 443
-        - protocol: TCP
-          port: 465
-        - protocol: TCP
-          port: 587
 {{- end }}
