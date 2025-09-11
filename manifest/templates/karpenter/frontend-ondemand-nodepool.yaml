@@ -34,10 +34,6 @@ spec:
           operator: In
           values:
 {{ toYaml .Values.karpenter.zones | indent 12 }}
-  limits:
-    resources:
-      cpu: "2"
-      memory: "4Gi"
   disruption:
     budgets:
       - nodes: "10%"
