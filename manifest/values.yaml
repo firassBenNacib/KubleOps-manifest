@@ -5,7 +5,7 @@ backend:
   irsaRoleArn: ""
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/backend
-    tag: "160"
+    tag: "161"
     pullPolicy: Always
   imagePullSecrets: []
   replicas: 2
@@ -313,7 +313,6 @@ networkPolicy:
   dnsNamespace: kube-system
   dnsPodLabelKey: k8s-app
   dnsPodLabelValue: kube-dns
-
 karpenter:
   clusterName: "KubleOps"
   nodeRoleArn: ""
