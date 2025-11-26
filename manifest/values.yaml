@@ -5,7 +5,7 @@ backend:
   irsaRoleArn: ""
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/backend
-    tag: "161"
+    tag: "173"
     pullPolicy: Always
   imagePullSecrets: []
   replicas: 2
