@@ -82,7 +82,7 @@ frontend:
   irsaRoleArn: ""
   image:
     repository: 392159838427.dkr.ecr.us-east-1.amazonaws.com/frontend
-    tag: "170"
+    tag: "175"
     pullPolicy: Always
   imagePullSecrets: []
   replicas: 1
